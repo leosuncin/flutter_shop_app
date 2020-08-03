@@ -46,6 +46,10 @@ class Products with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
+  Product getById(String id) {
+    return _items.firstWhere((product) => product.id == id);
+  }
+
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
