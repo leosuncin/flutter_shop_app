@@ -37,6 +37,7 @@ class Cart with ChangeNotifier, DiagnosticableTreeMixin {
         0,
         (previousValue, item) => item.price * item.quantity + previousValue,
       );
+
   int get itemCount => _items.length;
 
   void addItem({
@@ -60,6 +61,10 @@ class Cart with ChangeNotifier, DiagnosticableTreeMixin {
       );
     }
     notifyListeners();
+  }
+
+  CartItem itemAt(int index) {
+    return _items.values.toList().elementAt(index);
   }
 
   @override
