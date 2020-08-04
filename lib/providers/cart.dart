@@ -72,6 +72,11 @@ class Cart with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
+  void clear() {
+    _items = {};
+    notifyListeners();
+  }
+
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     properties.add(DiagnosticsProperty<Map<String, CartItem>>('items', items));
