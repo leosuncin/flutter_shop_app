@@ -67,6 +67,11 @@ class Cart with ChangeNotifier, DiagnosticableTreeMixin {
     return _items.values.toList().elementAt(index);
   }
 
+  void removeItem(String productId) {
+    _items.remove(productId);
+    notifyListeners();
+  }
+
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     properties.add(DiagnosticsProperty<Map<String, CartItem>>('items', items));
