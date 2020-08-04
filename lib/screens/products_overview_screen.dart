@@ -4,14 +4,55 @@ import 'package:provider/provider.dart';
 import '../components/product_item.dart';
 import '../providers/products.dart';
 
-class ProductsOverviewScreen extends StatelessWidget {
+enum FilterOptions {
+  Favorites,
+  All,
+}
+
+class ProductsOverviewScreen extends StatefulWidget {
+  @override
+  _ProductsOverviewScreenState createState() => _ProductsOverviewScreenState();
+}
+
+class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
+  bool _showFavoritesOnly = false;
+
   @override
   Widget build(BuildContext context) {
-    final loadedProducts = context.watch<Products>().items;
+    final productsData = Provider.of<Products>(context, listen: false);
+    final loadedProducts =
+        _showFavoritesOnly ? productsData.favoriteItems : productsData.items;
 
     return Scaffold(
       appBar: AppBar(
         title: Text('My shop'),
+        actions: [
+          PopupMenuButton(
+            icon: Icon(Icons.more_vert),
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                child: Text('Only favorites'),
+                value: FilterOptions.Favorites,
+              ),
+              PopupMenuItem(
+                child: Text('Show all'),
+                value: FilterOptions.All,
+              ),
+            ],
+            onSelected: (FilterOptions selectedValue) {
+              setState(() {
+                switch (selectedValue) {
+                  case FilterOptions.All:
+                    _showFavoritesOnly = false;
+                    break;
+                  case FilterOptions.Favorites:
+                    _showFavoritesOnly = true;
+                    break;
+                }
+              });
+            },
+          ),
+        ],
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(10),
