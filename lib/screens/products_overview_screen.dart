@@ -22,8 +22,9 @@ class ProductsOverviewScreen extends StatelessWidget {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
         ),
-        itemBuilder: (ctx, index) => ProductItem(
-          product: loadedProducts.elementAt(index),
+        itemBuilder: (ctx, index) => ChangeNotifierProvider.value(
+          value: loadedProducts.elementAt(index),
+          child: ProductItem(),
         ),
       ),
     );
