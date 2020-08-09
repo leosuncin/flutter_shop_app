@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../providers/product.dart';
 
+final RegExp _urlRegex = RegExp(r'^https?:\/\/[\w.\/?=&_%#-]*');
+
 class EditProductScreen extends StatefulWidget {
   static const routeName = '/edit/product';
 
@@ -18,7 +20,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Product _editedProduct = Product.empty(id: UniqueKey().toString());
 
   _updateImageUrl() {
-    if (!_imageUrlFocusNode.hasFocus && _imageUrlCtrl.text.isNotEmpty) {
+    if (!_imageUrlFocusNode.hasFocus &&
+        _urlRegex.hasMatch(_imageUrlCtrl.text)) {
       setState(() {});
     }
   }
@@ -60,6 +63,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _form,
+          autovalidate: true,
           child: ListView(
             children: [
               TextFormField(
@@ -70,6 +74,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_priceFocusNode);
+                },
+                validator: (value) {
+                  if (value.isEmpty) return 'Please provide a title.';
+                  if (value.length < 4) return 'Title is too short.';
+                  return null;
                 },
                 onSaved: (value) {
                   setState(() {
@@ -89,6 +98,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_descriptionFocusNode);
                 },
+                validator: (value) {
+                  if (value.isEmpty) return 'Please provide a price.';
+
+                  final number = int.tryParse(value) ?? double.tryParse(value);
+
+                  if (number == null) return 'Price should be a number.';
+                  if (number <= 0) return 'Price should be greater than zero.';
+                  return null;
+                },
                 onSaved: (value) {
                   setState(() {
                     _editedProduct = _editedProduct.copyWith(
@@ -104,6 +122,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 maxLines: 3,
                 keyboardType: TextInputType.multiline,
                 focusNode: _descriptionFocusNode,
+                validator: (value) {
+                  if (value.isEmpty || value.trim().isEmpty)
+                    return 'Please provide a description.';
+                  if (value.length < 10)
+                    return 'Description should be at least 10 characters long.';
+                  return null;
+                },
                 onSaved: (value) {
                   setState(() {
                     _editedProduct = _editedProduct.copyWith(
@@ -142,6 +167,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       controller: _imageUrlCtrl,
                       focusNode: _imageUrlFocusNode,
                       onFieldSubmitted: (_) => _saveForm(),
+                      validator: (value) {
+                        if (value.isEmpty) return 'Please provide a image URL';
+                        if (!_urlRegex.hasMatch(value))
+                          return 'Please enter a valid URL.';
+                        return null;
+                      },
                       onSaved: (value) {
                         setState(() {
                           _editedProduct = _editedProduct.copyWith(
