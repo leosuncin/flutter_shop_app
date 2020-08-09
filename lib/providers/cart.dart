@@ -77,6 +77,21 @@ class Cart with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
+  void shiftItem(String productId) {
+    if (!_items.containsKey(productId)) return;
+
+    if (_items[productId].quantity > 1) {
+      _items.update(
+        productId,
+        (item) => item.copyWith(quantity: item.quantity - 1),
+      );
+    } else {
+      _items.remove(productId);
+    }
+
+    notifyListeners();
+  }
+
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     properties.add(DiagnosticsProperty<Map<String, CartItem>>('items', items));
