@@ -62,6 +62,11 @@ class Products with ChangeNotifier, DiagnosticableTreeMixin {
     }
   }
 
+  void removeProduct(String productId) {
+    _items.removeWhere((product) => product.id == productId);
+    notifyListeners();
+  }
+
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
