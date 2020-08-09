@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/product.dart';
+import '../providers/products.dart';
 
 final RegExp _urlRegex = RegExp(r'^https?:\/\/[\w.\/?=&_%#-]*');
 
@@ -17,7 +19,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageUrlFocusNode = FocusNode();
   final _imageUrlCtrl = TextEditingController();
   final _form = GlobalKey<FormState>();
-  Product _editedProduct = Product.empty(id: UniqueKey().toString());
+  Product _editedProduct = Product.empty();
 
   _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus &&
@@ -28,7 +30,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   _saveForm() {
     _form.currentState.save();
-    print(_editedProduct);
+    context.read<Products>().addProduct(Product.from(_editedProduct));
+    Navigator.of(context).pop();
   }
 
   @override
@@ -151,7 +154,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       ),
                     ),
                     child: _imageUrlCtrl.text.isEmpty
-                        ? Text('Enter a URL')
+                        ? Center(child: Text('Enter a URL'))
                         : FittedBox(
                             child: Image.network(_imageUrlCtrl.text),
                             fit: BoxFit.cover,

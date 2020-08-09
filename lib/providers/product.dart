@@ -27,6 +27,16 @@ class Product with ChangeNotifier {
           imageUrl: '',
         );
 
+  Product.from(Product another)
+      : this(
+          id: UniqueKey().toString(),
+          title: another.title,
+          description: another.description,
+          price: another.price,
+          imageUrl: another.imageUrl,
+          isFavorite: another.isFavorite,
+        );
+
   void toggleFavoriteStatus() {
     isFavorite = !isFavorite;
     notifyListeners();
