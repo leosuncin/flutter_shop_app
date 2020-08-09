@@ -20,6 +20,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageUrlCtrl = TextEditingController();
   final _form = GlobalKey<FormState>();
   Product _editedProduct = Product.empty();
+  var _isInitialized = false;
 
   _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus &&
@@ -30,8 +31,28 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   _saveForm() {
     _form.currentState.save();
-    context.read<Products>().addProduct(Product.from(_editedProduct));
+
+    if (_editedProduct.id == null) {
+      context.read<Products>().addProduct(Product.from(_editedProduct));
+    } else {
+      context.read<Products>().updateProduct(_editedProduct);
+    }
+
     Navigator.of(context).pop();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (!_isInitialized) {
+      var product = ModalRoute.of(context).settings.arguments as Product;
+
+      if (product != null) {
+        _editedProduct = product;
+        _imageUrlCtrl.text = product.imageUrl;
+      }
+    }
+    _isInitialized = true;
+    super.didChangeDependencies();
   }
 
   @override
@@ -54,7 +75,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit product'),
+        title: _editedProduct.id != null
+            ? const Text('Edit product')
+            : const Text('Create product'),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
@@ -75,6 +98,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 ),
                 autofocus: true,
                 textInputAction: TextInputAction.next,
+                initialValue: _editedProduct.title,
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_priceFocusNode);
                 },
@@ -98,6 +122,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
                 focusNode: _priceFocusNode,
+                initialValue: _editedProduct.price?.toString(),
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_descriptionFocusNode);
                 },
@@ -125,6 +150,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 maxLines: 3,
                 keyboardType: TextInputType.multiline,
                 focusNode: _descriptionFocusNode,
+                initialValue: _editedProduct.description,
                 validator: (value) {
                   if (value.isEmpty || value.trim().isEmpty)
                     return 'Please provide a description.';

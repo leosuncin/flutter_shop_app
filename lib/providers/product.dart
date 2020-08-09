@@ -72,4 +72,10 @@ class Product with ChangeNotifier {
       isFavorite: $isFavorite
     }''';
   }
+
+  @override
+  bool operator ==(Object other) => other is Product && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
