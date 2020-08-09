@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../providers/product.dart';
+
 class EditProductScreen extends StatefulWidget {
   static const routeName = '/edit/product';
 
@@ -12,11 +14,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _descriptionFocusNode = FocusNode();
   final _imageUrlFocusNode = FocusNode();
   final _imageUrlCtrl = TextEditingController();
+  final _form = GlobalKey<FormState>();
+  Product _editedProduct = Product.empty(id: UniqueKey().toString());
 
   _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus && _imageUrlCtrl.text.isNotEmpty) {
       setState(() {});
     }
+  }
+
+  _saveForm() {
+    _form.currentState.save();
+    print(_editedProduct);
   }
 
   @override
@@ -39,77 +48,114 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit product'),
+        title: const Text('Edit product'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: _saveForm,
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
-            child: ListView(
-          children: [
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Title',
+          key: _form,
+          child: ListView(
+            children: [
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Title',
+                ),
+                autofocus: true,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(_priceFocusNode);
+                },
+                onSaved: (value) {
+                  setState(() {
+                    _editedProduct = _editedProduct.copyWith(
+                      title: value,
+                    );
+                  });
+                },
               ),
-              autofocus: true,
-              textInputAction: TextInputAction.next,
-              onFieldSubmitted: (_) {
-                FocusScope.of(context).requestFocus(_priceFocusNode);
-              },
-            ),
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Price',
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Price',
+                ),
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                focusNode: _priceFocusNode,
+                onFieldSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(_descriptionFocusNode);
+                },
+                onSaved: (value) {
+                  setState(() {
+                    _editedProduct = _editedProduct.copyWith(
+                      price: double.parse(value),
+                    );
+                  });
+                },
               ),
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.next,
-              focusNode: _priceFocusNode,
-              onFieldSubmitted: (_) {
-                FocusScope.of(context).requestFocus(_descriptionFocusNode);
-              },
-            ),
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Description',
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                ),
+                maxLines: 3,
+                keyboardType: TextInputType.multiline,
+                focusNode: _descriptionFocusNode,
+                onSaved: (value) {
+                  setState(() {
+                    _editedProduct = _editedProduct.copyWith(
+                      description: value,
+                    );
+                  });
+                },
               ),
-              maxLines: 3,
-              keyboardType: TextInputType.multiline,
-              focusNode: _descriptionFocusNode,
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  margin: EdgeInsets.only(top: 8, right: 10),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      width: 1,
-                      color: Colors.grey,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 100,
+                    height: 100,
+                    margin: EdgeInsets.only(top: 8, right: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 1,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    child: _imageUrlCtrl.text.isEmpty
+                        ? Text('Enter a URL')
+                        : FittedBox(
+                            child: Image.network(_imageUrlCtrl.text),
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Image URL',
+                      ),
+                      keyboardType: TextInputType.url,
+                      textInputAction: TextInputAction.done,
+                      controller: _imageUrlCtrl,
+                      focusNode: _imageUrlFocusNode,
+                      onFieldSubmitted: (_) => _saveForm(),
+                      onSaved: (value) {
+                        setState(() {
+                          _editedProduct = _editedProduct.copyWith(
+                            imageUrl: value,
+                          );
+                        });
+                      },
                     ),
                   ),
-                  child: _imageUrlCtrl.text.isEmpty
-                      ? Text('Enter a URL')
-                      : FittedBox(
-                          child: Image.network(_imageUrlCtrl.text),
-                          fit: BoxFit.cover,
-                        ),
-                ),
-                Expanded(
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Image URL',
-                    ),
-                    keyboardType: TextInputType.url,
-                    textInputAction: TextInputAction.done,
-                    controller: _imageUrlCtrl,
-                    focusNode: _imageUrlFocusNode,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        )),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
