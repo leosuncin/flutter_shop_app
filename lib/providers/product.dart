@@ -37,6 +37,17 @@ class Product with ChangeNotifier {
           isFavorite: another.isFavorite,
         );
 
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      price: json['price'] + 0.0,
+      imageUrl: json['imageUrl'],
+      isFavorite: json['isFavorite'] ?? false,
+    );
+  }
+
   void toggleFavoriteStatus() {
     isFavorite = !isFavorite;
     notifyListeners();
@@ -59,6 +70,15 @@ class Product with ChangeNotifier {
       isFavorite: isFavorite ?? this.isFavorite,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': this.id,
+        'title': this.title,
+        'description': this.description,
+        'price': this.price,
+        'imageUrl': this.imageUrl,
+        'isFavorite': this.isFavorite,
+      };
 
   @override
   String toString() {

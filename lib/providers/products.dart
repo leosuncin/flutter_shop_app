@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
+import '../constants.dart';
 import 'product.dart';
 
 class Products with ChangeNotifier, DiagnosticableTreeMixin {
@@ -45,8 +49,17 @@ class Products with ChangeNotifier, DiagnosticableTreeMixin {
       _items.where((product) => product.isFavorite).toList();
 
   void addProduct(Product product) {
-    _items.add(product);
-    notifyListeners();
+    http.post(
+      '$apiUrl/products',
+      body: json.encode(product.toJson()),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    ).then((response) {
+      final body = json.decode(response.body);
+      _items.add(Product.fromJson(body));
+      notifyListeners();
+    });
   }
 
   Product getById(String id) {
