@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -38,7 +39,28 @@ class _EditProductScreenState extends State<EditProductScreen> {
     });
 
     if (_editedProduct.id == null) {
-      await context.read<Products>().addProduct(Product.from(_editedProduct));
+      try {
+        await context.read<Products>().addProduct(Product.from(_editedProduct));
+      } catch (error) {
+        print(error);
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('An error occurred'),
+            content: Text(
+              kReleaseMode ? 'Something went wrong!' : error.toString(),
+            ),
+            actions: [
+              FlatButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                },
+              ),
+            ],
+          ),
+        );
+      }
     } else {
       context.read<Products>().updateProduct(_editedProduct);
     }
