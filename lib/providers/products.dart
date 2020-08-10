@@ -48,18 +48,17 @@ class Products with ChangeNotifier, DiagnosticableTreeMixin {
   List<Product> get favoriteItems =>
       _items.where((product) => product.isFavorite).toList();
 
-  void addProduct(Product product) {
-    http.post(
+  Future<void> addProduct(Product product) async {
+    final response = await http.post(
       '$apiUrl/products',
       body: json.encode(product.toJson()),
-      headers: <String, String>{
+      headers: {
         'Content-Type': 'application/json; charset=UTF-8',
       },
-    ).then((response) {
-      final body = json.decode(response.body);
-      _items.add(Product.fromJson(body));
-      notifyListeners();
-    });
+    );
+    final body = json.decode(response.body);
+    _items.add(Product.fromJson(body));
+    notifyListeners();
   }
 
   Product getById(String id) {
