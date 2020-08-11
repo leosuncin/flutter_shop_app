@@ -20,6 +20,21 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showFavoritesOnly = false;
+  var _isInitialized = false;
+  var _isloading = true;
+
+  @override
+  void didChangeDependencies() {
+    if (!_isInitialized) {
+      Provider.of<Products>(context).fetchProducts().then((_) {
+        setState(() {
+          _isloading = false;
+        });
+      });
+    }
+    _isInitialized = true;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,20 +86,24 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(10),
-        itemCount: loadedProducts.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-        ),
-        itemBuilder: (ctx, index) => ChangeNotifierProvider.value(
-          value: loadedProducts.elementAt(index),
-          child: ProductItem(),
-        ),
-      ),
+      body: _isloading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : GridView.builder(
+              padding: const EdgeInsets.all(10),
+              itemCount: loadedProducts.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 3 / 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
+              itemBuilder: (ctx, index) => ChangeNotifierProvider.value(
+                value: loadedProducts.elementAt(index),
+                child: ProductItem(),
+              ),
+            ),
     );
   }
 }
